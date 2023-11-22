@@ -3,7 +3,7 @@ const usersModel = {
     SELECT 
     *
     FROM    
-        users_1
+        southpark
     ` ,
 
 
@@ -11,7 +11,7 @@ const usersModel = {
     SELECT
         *
     FROM
-        users_1
+        southpark
     WHERE
         id = ?
     `,
@@ -20,31 +20,21 @@ const usersModel = {
     SELECT
         *
     FROM
-        users_1
+        southpark
     WHERE
-        username = ?
+        name = ?
     `,
 
-    getByEmail: `
-    SELECT
-        *
-    FROM
-        users_1
-    WHERE
-        email = ?
-    `,
 
     addRow: `
         INSERT INTO
-            users_1 (
-                username, 
-                password,
-                email,
-                name,
-                lastname,
-                phonenumber,
-                role_id,
-                is_active
+            southpark (
+                name, 
+                lastname, 
+                age, 
+                gender, 
+                religion, 
+                occupation
             )VALUES(
                 ?, ?, ?, ?, ?, ?, ?, ?
                 
@@ -56,16 +46,14 @@ const usersModel = {
 
     updateRow: `
         UPDATE
-            users_1
+            southpark
         SET
-            username = ?,
-            password = ?,
-            email = ?,
-            name = ?,
-            lastname = ?,
-            phonenumber = ?,
-            role_id = ?,
-            is_active = ?
+            name, 
+            lastname, 
+            age, 
+            gender, 
+            religion, 
+            occupation
         WHERE 
             id = ?
     ` 
