@@ -1,19 +1,21 @@
 const {request, reponse} = require('express');
 const usersModel = require('../models/users');
-const pool = require('../DB');
-//1//
-const listUsers = async(req = request, res = response)  => {
+const pool = require('../db');
+
+
+// Enpoint 1//
+const listChar = async(req = request, res = response)  => {
 let conn;
 try {
     conn = await pool.getConnection();
 
-    const users = await conn.query(usersModel.getAll, (err) => {
+    const southpark= await conn.query(usersModel.getAll, (err) => {
         if (err) {
             throw err;
             
         }
     })    
-    res.json(users)
+    res.json(southpark)
 } 
 catch (error) {
     console.log(error);
@@ -24,13 +26,14 @@ catch (error) {
     {conn.end();}
 }
 }
-//2//
-const listUserByID = async(req = request, res = response)  => {
+
+// Enpoint 2//
+const listCharByID = async(req = request, res = response)  => {
     const {id}=req.params;
     let conn; 
 
-    if (isNaN(id)) {   //cuando no es un número//
-        res.status(400).json({msg: `THE ID - IS INVALID`});    //mostrata este mensaje cuando se tecleé un carácter en vez de un munero// 
+    if (isNaN(id)) {   
+        res.status(400).json({msg: `THE ID IS INVALID`});     
         return;
         
     }
@@ -38,19 +41,18 @@ const listUserByID = async(req = request, res = response)  => {
     try {
         conn = await pool.getConnection();
     
-        const [user] = await conn.query(usersModel.getByID, [id], (err) => {    //consulta de los registro en nuestra base de datos//
+        const [southpark] = await conn.query(usersModel.getByID, [id], (err) => {  
             if (err) {
                 throw err;
                 
             }
         })
-
-        if (!user) {
-            res.status(404).json({msg: `USER WITH ID ${id} NOT FOUND`});     //mostrata este mensaje cuando se tecleé un numero en vez de un carácter// 
+        if (!southpark) {
+            res.status(404).json({msg: `CHARACTER WITH ID ${id} NOT FOUND`});      
             return;
         }
 
-        res.json(user);
+        res.json(southpark);
     } catch (error) {
         console.log(error);
         res.status(500).json(error);
@@ -61,55 +63,55 @@ const listUserByID = async(req = request, res = response)  => {
     }
     }
 
-    //AÑADE UN NUEVO USUARIO O REGISTRO//
-
-
-
-    const addUser=async(req = request, res = response) => {
+    // EndPoint 3 //
+    const addChar = async(req = request, res = response) => {
         const {
+            id,
             name, 
             lastname, 
             age, 
             gender, 
             religion, 
             occupation
+                
         } = req.body;
 
-        if (!name || !lastname || !age || !gender || !religion || !occupation) {
+        if (!name || !lastname || !age || !gender || !religion || !occupation ) {
             res.status(400).json({msg: 'MISSING INFORMATION'});
             return;
         }
-        const salRounds = 10;
-        const passwordHash = await bcrypt.hash(password, salRounds);
-
-        const user = [
+        const southpark = [
+            
             name, 
             lastname, 
             age, 
             gender, 
             religion, 
-            occupation]
+            occupation
+
+            ]
+
         let conn;
 
         try {
             conn = await pool.getConnection();
 
-            const [usernameExists] = await conn.query(usersModel.getByUsername, [username], (err) => {
+            const [NameExists] = await conn.query(usersModel.getByName, [name], (err) => {
                 if (err) throw err;
                 })
-                if (usernameExists) {
-                    res.status(409).json({msg: 'The name ${name} already exists'});
+                if (NameExists) {
+                    res.status(409).json({msg: `CHARACTER ${name} already exists`});
                     return;
                 }
 
 
-            const userAdded = await conn.query(usersModel.addRow, [...user], (err) => {
+            const nameAdded = await conn.query(usersModel.addChar, [...southpark], (err) => {
                 if (err) throw err;
                 })
-                if (userAdded.affecteRows === 0){
-                    throw new Error('User not added')
+                if (nameAdded.affecteRows === 0){
+                    throw new Error('Name not added')
                 }                                                   
-                res.json({msg: 'USER ADDED SECCESFULLY'});        
+                res.json({msg: 'CHARACTER ADDED SECCESFULLY'});        
         } catch (error) {
             console.log(error);
             res.status(500).json(error);
@@ -121,95 +123,83 @@ const listUserByID = async(req = request, res = response)  => {
         }
         }
 
-        //Nuevo EndPoint 4 Modificar o Actualizar un registro ya registrado en nuestra base de datos//
-        const updateUser = async (req = request, res = response) => {
+
+        //Nuevo EndPoint 4  Actualizar datos
+        const updateChar = async (req = request, res = response) => {
             let conn;
         
             const {
-                name, 
-                lastname, 
-                age, 
-                gender, 
-                religion, 
-                occupation
+            name, 
+            lastname, 
+            age, 
+            gender, 
+            religion, 
+            occupation
             } = req.body;
 
-            const { id } = req.params;
+            const {id} = req.params;
 
-            if (isNaN(id)) {   //cuando no es un número//
-                res.status(400).json({msg: `THE ID - IS INVALID`});    //mostrata este mensaje cuando se tecleé un carácter en vez de un munero// 
-                return;
-                
-            }
-
-
-            let userNewData = [
-                name, 
-                lastname, 
-                age, 
-                gender, 
-                religion, 
-                occupation
+            let southparkNewData = [
+            name, 
+            lastname, 
+            age, 
+            gender, 
+            religion, 
+            occupation
             ];
         
             try {
                 conn = await pool.getConnection();
         
-        const [userExists] = await conn.query
+        const [southparkExists] = await conn.query
         (usersModel.getByID, 
             [id], 
             (err) => {
             if (err) throw err;
         });
 
-        if (!userExists || userExists.is_active ===0){
-            res.status(409).json({msg: `The character with ID ${id} not found`});
-                return;
+        if (!southparkExists || southparkExists.is_active ===0){
+            res.status(409).json({msg: `CHARACTER with ID ${id} not found`});
+            return;
         }
 
-        const [usernameExists] = await conn.query(usersModel.getByUsername, [username], (err) => {
+        const [NameExists] = await conn.query(usersModel.getByName, [name], (err) => {
             if (err) throw err;
             })
-            if (usernameExists) {
-                res.status(409).json({msg: 'The character ${name} already exists'});
+            if (NameExists) {
+                res.status(409).json({msg: 'CHARACTER already exists'});
                 return;
             }
 
-        const [emailExists] = await conn.query(usersModel.getByEmail, [email], (err) => {
-            if (err) throw err;
-            })
-            if (emailExists) {
-                res.status(409).json({msg: 'Email ${email} already exists'});
-                return;
-                }
+                const southparkOldData = [
+                southparkExists.name,
+                southparkExists.lastname,
+                southparkExists.age,
+                southparkExists.gender,
+                southparkExists.religion,
+                southparkExists.occupation
+                
 
-                const userOldData = [
-                userExists.name, 
-                userExists.lastname, 
-                userExists.age, 
-                userExists.gender, 
-                userExists.religion, 
-                userExists.occupation
             ];
 
-            userNewData.forEach((userData, index) =>{
-                if (!userData){
-                    userNewData[index] = userOldData[index];
+            southparkNewData.forEach((southparkData, index) =>{
+                if (!southparkData){
+                    southparkNewData[index] = southparkOldData[index];
                 }
             })
-                const userUpdated = await conn.query(
-                    usersModel.updateRow,
-                    [...userNewData, id],
+                const updateChar = await conn.query(
+                    usersModel.updateChar,
+                    [...southparkNewData, id],
                     (err) =>{
                         if (err) throw err;
                     }
                 )
 
-        if (userUpdated.affecteRows === 0){
-        throw new Error('Character not added')
+        if (updateChar.affecteRows === 0){
+        throw new Error('User not added')
                 } 
 
-                res.json({msg: 'Character UPDATED SECCESFULLY'});
+                res.json({msg: 'CHARACTER UPDATED SECCESFULLY'});
                 
             } catch (error) {
                 console.log(error);
@@ -223,44 +213,39 @@ const listUserByID = async(req = request, res = response)  => {
     
 
 
-//endpoint 5//para eleminar  un usuario
-        const deleteUser = async(req = request, res = response) => {
+//endpoint 5 eliminar 
+        const deleteChar = async(req = request, res = response) => {
             let conn;
             const {id} = req.params; 
-            if (isNaN(id)) {   //cuando no es un número//
-                res.status(400).json({msg: `THE ID - IS INVALID`});    //mostrata este mensaje cuando se tecleé un carácter en vez de un munero// 
-                return;
-                
-            }
 
 
         try {
 
             conn = await pool.getConnection();
 
-            const [userExists] = await conn.query
+            const [southparkExists] = await conn.query
             (usersModel.getByID, 
                 [id], 
                 (err) => {
                 if (err) throw err;
             });
 
-            if (!userExists || userExists.is_active ===0){
-                res.status(409).json({msg: `Character with ID ${id} not found`});
+            if (!southparkExists || southparkExists.is_active ===0){
+                res.status(409).json({msg: `CHARACTER with ID ${id} not found`});
                 return;
 
             }
 
-            const userDeleted = await conn.query(
-                usersModel.deleteRow,
+            const CharDeleted = await conn.query(
+                usersModel.deleteChar,
                 [id],
                 (err) => {
                     if (err) throw err;
                 }
             );
             
-            if (userDeleted.affecteRows === 0){
-                throw new Error('Character not deleted');
+            if (southparkDeleted.affecteRows === 0){
+                throw new Error('CHARACTER NOT DELETED');
 
             }
             res.json ({msg: 'Character deleted seccesfully'});
@@ -269,14 +254,11 @@ const listUserByID = async(req = request, res = response)  => {
             console.log(error);
             res.status(500).json(error);
         } finally{
-            if(conn) (await conn).end();
+            if (conn) conn.end();
 
 
         }
             
-}  
-
-
-
+        }
         
-    module.exports = {listUsers, listUserByID, addUser, updateUser, deleteUser}
+module.exports = {listChar, listCharByID, addChar, updateChar, deleteChar }
